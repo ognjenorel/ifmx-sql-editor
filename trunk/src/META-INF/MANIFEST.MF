@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: swingx-1.6.jar jsyntaxpane-0.9.4.jar ifxjdbc.jar groovy-all-1.8.0.jar
+Main-Class: SqlEditorMain
