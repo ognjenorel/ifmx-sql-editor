@@ -1,17 +1,14 @@
 #summary Getting started using the program
 #labels Featured,Phase-Deploy
 
-==License information==
+First download the featured executables download from the project's main page. 
 
 This program is released under GNU GPL. Please find the copy of the license attached in file COPYING.txt.
 
-IMPORTANT: By downloading and using the program you agree with all terms of IBM Informix JDBC Driver License, attached
-           in the file informix_jdbc.txt.
+IMPORTANT: By downloading and using the program you agree with all terms of IBM Informix JDBC Driver License, attached in the file informix_jdbc.txt.
 
 
 ==Starting up==
-
-First download the featured executables download from the project's main page. 
 
 You'll need Java installed on your computer in order to start this program. Most likely you already have it, but if not, get it at www.java.com.
 
