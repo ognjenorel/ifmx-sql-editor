@@ -5,7 +5,7 @@ First download the featured executables download from the project's main page.
 
 This program is released under GNU GPL. Please find the copy of the license attached in file COPYING.txt.
 
-IMPORTANT: By downloading and using the program you agree with all terms of IBM Informix JDBC Driver License, attached in the file informix_jdbc.txt.
+IMPORTANT: By downloading and using the program you agree with all terms of IBM Informix JDBC Driver License, attached in the file licenses/informix_jdbc.txt.
 
 
 ==Starting up==
@@ -30,8 +30,7 @@ E.g. connection to a database with Croatian locale should be like this:
 jdbc:informix-sqli://my_host:9088/my_db:INFORMIXSERVER=my_ifmxserv;DB_LOCALE=hr_HR.8859-2;CLIENT_LOCALE=hr_HR.CP1250
 }}}
 
-The name of the JDBC driver should be the same if Informix JDBC driver is used (com.informix.jdbc.IfxDriver). If
-experimenting with other drivers, change this.
+The name of the JDBC driver should be the same if Informix JDBC driver is used (com.informix.jdbc.!IfxDriver). If experimenting with other drivers, change this.
 Username can be changed at login time.
 
 
@@ -43,7 +42,7 @@ Some useful key shortcuts:
 
   * Ctrl+Enter - execute selected 
   * Ctrl+Shift+Enter - execute all commands in editor
-  * Ctrl+PgDn, Ctrl+PgUp - rotate through displayed output tabs and the editor
+  * Ctrl+!PgDn, Ctrl+!PgUp - rotate through displayed output tabs and the editor
   * Ctrl+K - keep the active output tab
   * Ctrl+R - disregard the active output tab
 
