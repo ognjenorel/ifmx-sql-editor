@@ -1,0 +1,8 @@
+<dbConnections>
+  <dbConnection>
+    <alias>my_connection</alias>
+    <jdbcUrl>jdbc:informix-sqli://my_host.com:9088/my_database:INFORMIXSERVER=my_informixserver</jdbcUrl>
+    <driverClass>com.informix.jdbc.IfxDriver</driverClass>
+    <user>me</user>
+  </dbConnection>
+</dbConnections>
