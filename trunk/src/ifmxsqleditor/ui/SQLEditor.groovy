@@ -44,6 +44,7 @@ import javax.swing.text.AttributeSet
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 import java.awt.Color
+import ifmxsqleditor.common.Options
 
 public class SqlEditorWindow {
 
@@ -102,7 +103,6 @@ public class SqlEditorWindow {
       def undoManager = new TextUndoManager()
       def styledDocument = new DefaultStyledDocument()
       styledDocument.addUndoableEditListener undoManager
-
 
       JFrame frame = swing.frame(title: TITLE, id: 'mainFrame', defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE) {
 
@@ -207,6 +207,11 @@ public class SqlEditorWindow {
             cw.show(this)
          }
 
+         actionOptionsStopOnError = swing.action(name: 'Stop on error') {
+            Options.stopOnError = !Options.stopOnError
+            swing.menuStopOnError.selected = Options.stopOnError
+         }
+
          actionExit = swing.action(name: 'Exit', mnemonic: 'x', accelerator: 'ctrl Q') { System.exit 0 }
 
          keyListener = [
@@ -248,6 +253,8 @@ public class SqlEditorWindow {
             }
             menu('Options', mnemonic: 'O') {
                menuItem(action: actionEditConnections)
+               checkBoxMenuItem(id:'menuStopOnError', action: actionOptionsStopOnError)
+               //menuItem(id:'menuStopOnError', action: actionOptionsStopOnError)
 //               menuItem 'Preferences'
             }
             menu('View', mnemonic: 'V') {
@@ -304,6 +311,12 @@ public class SqlEditorWindow {
       }
 
       swing.SQL.addKeyListener keyListener
+      Options.readOptions()
+      adjustOptionsMenu()
+      addShutdownHook {
+         Options.saveOptions()
+      }
+
       frame.pack()
       GUIUtils.centerOnScreen frame
       frame.show()
@@ -539,6 +552,10 @@ public class SqlEditorWindow {
       swing.outputPane.setCharacterAttributes(aset, false)
       swing.outputPane.replaceSelection(s) // there is no selection, so inserts at caret
       swing.outputPane.editable = false
+   }
+
+   private def adjustOptionsMenu() {
+      swing.menuStopOnError.selected = Options.stopOnError
    }
    // utility methods - end
 

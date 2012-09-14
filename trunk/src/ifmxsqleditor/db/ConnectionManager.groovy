@@ -19,6 +19,7 @@
 package ifmxsqleditor.db
 
 import groovy.xml.MarkupBuilder
+import ifmxsqleditor.common.Utils
 
 /**
  * Contains active ConnectionData objects list and methods for load and save connection data in xml file
@@ -26,7 +27,7 @@ import groovy.xml.MarkupBuilder
 public class ConnectionManager {
 
    static String FILE = 'connections.xml'
-   String fileName = getConnectionsPath() + FILE
+   String fileName = Utils.getInstance().getApplicationPath() + FILE
 
    List<ConnectionData> connections = new ArrayList<ConnectionData>()
 
@@ -76,16 +77,4 @@ public class ConnectionManager {
       connections.find {it.alias.equals(alias)}
    }
 
-   def getConnectionsPath() {
-      def separator = System.getProperty('file.separator')
-      def path = getClass().protectionDomain.codeSource.location.path
-
-      if (path.endsWith('.jar'))
-         path = new File(path).getParent()
-
-      if (!path.endsWith(separator))
-         path += separator
-      
-      path
-   }
 }
