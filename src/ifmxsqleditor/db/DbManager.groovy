@@ -22,6 +22,7 @@ import groovy.sql.Sql
 import java.sql.SQLException
 
 import ifmxsqleditor.ui.ResultSetTableModel
+import ifmxsqleditor.common.Options
 
 class DbManager {
 
@@ -58,8 +59,14 @@ class DbManager {
       }
       returnList = new ArrayList<SqlResult>()
       queryResult = null
+      boolean exceptionRaised = false
 
       sqlParser.eachStatement(sqlToExecute) { origStatement, clearedStatement ->
+
+         // if we stop on error and there was one, skip further iterations
+         if (Options.stopOnError && exceptionRaised)
+            return
+
          def statement = statementManager.getStatement(origStatement.toString(), clearedStatement.toString(), queryClosure)
 
          try {
@@ -100,7 +107,7 @@ class DbManager {
          }
          catch (SQLException e) {
             returnList.add(new SqlResult(origStatement.toString(), e, 0))
-            return returnList 
+            exceptionRaised = true
          }
       }
       return returnList
