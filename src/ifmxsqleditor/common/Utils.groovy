@@ -35,6 +35,8 @@ class Utils {
       def separator = System.getProperty('file.separator')
       def path = getClass().protectionDomain.codeSource.location.path
 
+      path = path.replace('%20', ' ')
+
       if (path.endsWith('.jar'))
          path = new File(path).getParent()
 
