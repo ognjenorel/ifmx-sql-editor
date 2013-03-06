@@ -41,6 +41,7 @@ public class ConnectionManager {
          dbConnections = new XmlParser().parse(new File(fileName))
       }
       catch (FileNotFoundException e) {
+         println 'Error fetching connections: ' + e.getMessage()
          return
       }
       dbConnections.each { dbConnection ->
