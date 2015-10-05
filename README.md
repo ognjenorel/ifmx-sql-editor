@@ -16,7 +16,7 @@ Improvements (compared to original Informix SQL Editor):
 * opt whether to stop or continue on error when executing multiple SQL commands
 * set the window title (useful when working with multiple databases simultaneously) 
 
---Groovy--
+## Groovy
 
 Written in Groovy, this project is an excellent showcase of simplicity and efficiency of the Groovy programming language. The project consist of 15 classes only, with about 1500 lines of code. If you are a Groovy student, check the code to see:
 
@@ -27,7 +27,7 @@ Written in Groovy, this project is an excellent showcase of simplicity and effic
 * database interactions
 * all other language features 
 
---Used components--
+## Used components
 
 The editor uses the open source jsyntaxpane component, released under the Apache license 2.0.
 
