@@ -49,6 +49,11 @@ import org.jdesktop.swingx.renderer.DefaultTableRenderer
 import org.jdesktop.swingx.renderer.StringValues
 import org.jdesktop.swingx.renderer.StringValue as SV
 import javax.swing.table.AbstractTableModel
+import java.nio.charset.Charset
+import java.awt.Font
+import org.apache.bsf.util.event.adapters.java_awt_event_MouseAdapter
+import java.awt.event.MouseListener
+import java.awt.event.MouseEvent
 
 public class SqlEditorWindow {
 
@@ -96,6 +101,7 @@ public class SqlEditorWindow {
 
    def keyListener
    def windowTitle
+   def cellDetails
 
    def SqlEditorWindow() {
 
@@ -107,6 +113,8 @@ public class SqlEditorWindow {
       def undoManager = new TextUndoManager()
       def styledDocument = new DefaultStyledDocument()
       styledDocument.addUndoableEditListener undoManager
+
+      cellDetails = new CellDetailsWindow()
 
       JFrame frame = swing.frame(title: TITLE, id: 'mainFrame', defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE) {
 
@@ -133,6 +141,16 @@ public class SqlEditorWindow {
                                          accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK),
                                          /*smallIcon: imageIcon('../resources/media-playback-start.png'),*/
                                          closure: this.&executeAll)
+
+         actionExecuteSelectedAsBlock = swing.action(name: 'Execute selected as block',
+                                         accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK + InputEvent.ALT_MASK),
+                                         closure: this.&executeSelectedAsBlock,
+                                         toolTipText: 'Executes selected SQL within one database call, without parsing of statements and results')
+
+         actionExecuteAllAsBlock = swing.action(name: 'Execute all as block',
+                                         accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK + InputEvent.ALT_MASK),
+                                         closure: this.&executeAllAsBlock,
+                                         toolTipText: 'Executes all SQL within one database call, without parsing of statements and results')
 
          actionCopy = swing.action(name: 'Copy', accelerator: 'ctrl C', smallIcon: imageIcon('/ifmxsqleditor/resources/edit-copy.png')) { swing.SQL.copy() }
 
@@ -242,7 +260,7 @@ public class SqlEditorWindow {
                keyReleased: {},
                keyTyped: {}
          ] as KeyListener
-         
+
          // menu
          menuBar {
             menu('File', mnemonic: 'F') {
@@ -266,6 +284,9 @@ public class SqlEditorWindow {
             menu('SQL', mnemonic: 'S') {
                menuItem(action: actionExecuteSelected)
                menuItem(action: actionExecuteAll)
+               separator()
+               menuItem(action: actionExecuteSelectedAsBlock)
+               menuItem(action: actionExecuteAllAsBlock)
             }
             menu('Options', mnemonic: 'O') {
                menuItem(action: actionEditConnections)
@@ -283,6 +304,7 @@ public class SqlEditorWindow {
             }
             menu('Help', mnemonic: 'H') {
                 menuItem(action: actionAbout)
+                menuItem(action: actionTest)
             }
          }
 
@@ -314,7 +336,7 @@ public class SqlEditorWindow {
                splitPane(title: 'SQL', orientation: JSplitPane.VERTICAL_SPLIT, constraints: BL.CENTER) {
                   scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED,
                              verticalScrollBarPolicy: JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED) {
-                     editorPane(id: 'SQL', preferredSize: new Dimension(700, 450), document: styledDocument, contentType: 'text/sql')
+                     editorPane(id: 'SQL', preferredSize: new Dimension(700, 450), document: styledDocument, contentType: 'text/sql', font: new Font(Font.MONOSPACED, Font.PLAIN, 14))
                   }
                   scrollPane(
                         horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER,
@@ -449,8 +471,20 @@ public class SqlEditorWindow {
       }
    }
 
+   private def executeAllAsBlock(event) {
+      clearOutputTabs()
+      if (swing.SQL.text)
+         execute(swing.SQL.text, true)
+   }
 
-   private def execute(String sql) {
+   private def executeSelectedAsBlock(event) {
+      if (swing.SQL.selectedText?.trim()?.length() > 0) {
+         clearOutputTabs()
+         execute(swing.SQL.selectedText, true)
+      }
+   }
+
+   private def execute(String sql, boolean asBlock = false) {
       // calls for sql execution and shows results
       if (!dbManager.connected() || swing.connectionsCombo.selectedItem.toString().trim().isEmpty()) {
          GUIUtils.showMessage 'Connection to a database not established yet'
@@ -458,7 +492,7 @@ public class SqlEditorWindow {
       }
 
       swing.mainFrame.cursor = Cursor.WAIT_CURSOR
-      List<SqlResult> result = dbManager.executeSql(sql)
+      List<SqlResult> result = asBlock ? dbManager.executeSqlBlock(sql) : dbManager.executeSql(sql)
 
       result.each { it ->
          appendToOutput it.sql
@@ -523,10 +557,22 @@ public class SqlEditorWindow {
    private def getTable(TableModel tm) {
        // creates new results table
       JXTable table = new JXTable(model: tm, sortable: true, columnControlVisible: true, autoResizeMode: JXTable.AUTO_RESIZE_OFF, cellSelectionEnabled: true/*, showVerticalLines: true*/)
-      table.addHighlighter HighlighterFactory.createSimpleStriping();
+      table.addHighlighter HighlighterFactory.createSimpleStriping()
       table.addKeyListener keyListener
       table.packAll()
       table.requestFocus()
+      def mouseListener = [
+            mouseClicked: {event ->
+               if (event.getClickCount() == 2) {
+                  cellDetails.show tm.getValueAt(table.getSelectedRow(), table.getSelectedColumn()), swing.mainFrame
+               }
+            },
+            mousePressed: {},
+            mouseReleased: {},
+            mouseEntered: {},
+            mouseExited: {}
+      ] as MouseListener
+      table.addMouseListener mouseListener
 
       new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
    }
@@ -591,5 +637,14 @@ public class SqlEditorWindow {
 
 
    def testMethod(event) {
+//      swing.SQL.getDocument().putProperty('charset', 'UTF-8')
+//      swing.SQL.getDocument().putProperty('encoding', 'UTF-8')
+//      swing.SQL.getDocument().putProperty('IgnoreCharsetDirective', Boolean.TRUE)
+      swing.SQL.getDocument().putProperty('i18n', Boolean.TRUE)
+      Dictionary d = swing.SQL.getDocument().getDocumentProperties()
+      for (k in d.keys()) {
+         println(String.valueOf(k) + ' ' + String.valueOf(d.get(k)))
+      }
+      print 'defcharset = ' + Charset.defaultCharset().displayName()
    }
 }
