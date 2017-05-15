@@ -24,12 +24,15 @@ import java.awt.FlowLayout
 import javax.swing.JDialog
 
 import javax.swing.KeyStroke
+import java.awt.event.KeyListener
+import java.awt.event.KeyEvent
 
 class LoginWindow {
 
    boolean userCanceled = false
    SwingBuilder swing
    JDialog dialog
+   def keyListener
 
    def LoginWindow() {
 
@@ -47,6 +50,17 @@ class LoginWindow {
          userCanceled = true
          swing.loginFrame.setVisible(false)
       }
+
+      keyListener = [
+            keyPressed: {event ->
+                  if (event.keyCode == KeyEvent.VK_ENTER) {
+                     actionOK.closure.call()
+                  }
+               },
+            keyReleased: {},
+            keyTyped: {}
+      ] as KeyListener
+
 
       dialog = swing.dialog(title: 'Login', id: 'loginFrame', resizable: false, alwaysOnTop: true, modal: true) {
          vbox(border: emptyBorder(top: 10, left: 15, bottom: 10, right: 15)) { // can be done like this, but not clear enough imho: [10, 15, 10, 15]
@@ -66,6 +80,8 @@ class LoginWindow {
          }
       }
       dialog.pack()
+      swing.loginFrame.addKeyListener keyListener
+      swing.pwdField.addKeyListener keyListener
       GUIUtils.centerOnScreen dialog
    }
 
