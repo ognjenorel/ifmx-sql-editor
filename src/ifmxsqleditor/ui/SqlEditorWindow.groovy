@@ -1,4 +1,4 @@
-// Copyright 2012 Ognjen Orel
+// Copyright 2018 Ognjen Orel
 //
 // This file is part of IFMX SQL Editor.
 //
@@ -75,7 +75,7 @@ public class SqlEditorWindow {
 
     --
 
-    Copyright 2012 Ognjen Orel
+    Copyright 2018 Ognjen Orel
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -564,7 +564,7 @@ public class SqlEditorWindow {
       def mouseListener = [
             mouseClicked: {event ->
                if (event.getClickCount() == 2) {
-                  cellDetails.show tm.getValueAt(table.getSelectedRow(), table.getSelectedColumn()), swing.mainFrame
+                  cellDetails.show tm.getRawValueAt(table.getSelectedRow(), table.getSelectedColumn()), swing.mainFrame
                }
             },
             mousePressed: {},
@@ -574,7 +574,19 @@ public class SqlEditorWindow {
       ] as MouseListener
       table.addMouseListener mouseListener
 
+      adjustRowHeights table
+      
       new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+   }
+   
+   private def adjustRowHeights(JTable table) {
+      ResultSetTableModel tm = table.getModel()
+      if (!tm.customRowHeightExists()) return
+
+      for (i in 0 .. tm.getRowCount()) {
+         if (tm.getMaxRowHeight(i) != null)
+            table.setRowHeight(i, tm.getMaxRowHeight(i))
+      }
    }
    // result tabs handling methods - end
 
