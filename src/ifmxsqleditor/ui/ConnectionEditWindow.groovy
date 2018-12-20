@@ -84,6 +84,8 @@ public class ConnectionEditWindow {
       connectionData = cd
       if (!connectionData) {
          connectionData = new ConnectionData()
+         // set default driver class
+         connectionData.driverClass = 'com.informix.jdbc.IfxDriver'
       }
       valuesToFrame()
       GUIUtils.centerOnScreen frame
