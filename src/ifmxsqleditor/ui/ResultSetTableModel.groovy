@@ -25,6 +25,7 @@ import javax.imageio.ImageIO
 import javax.swing.*
 import javax.swing.table.AbstractTableModel
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 class ResultSetTableModel extends AbstractTableModel {
 
@@ -44,7 +45,7 @@ class ResultSetTableModel extends AbstractTableModel {
    int rowCount = 0
    int columnCount = 0
 
-   def ResultSetTableModel(ResultSet resultSet) {
+   ResultSetTableModel(ResultSet resultSet) {
       def meta = resultSet.metaData
       columnCount = meta.columnCount
       for(i in 0..<meta.columnCount) {
@@ -67,6 +68,9 @@ class ResultSetTableModel extends AbstractTableModel {
                if (obj instanceof byte[]) {
                   obj = processBlob(rowCount, i, obj)
                }
+               if (obj instanceof Timestamp) {
+                   obj = ((Timestamp) obj).getDateTimeString() + '.' + ((Timestamp) obj).getNanos()
+               }
                list.add(obj)
             }
          }
@@ -78,7 +82,7 @@ class ResultSetTableModel extends AbstractTableModel {
    Object processBlob(int row, int column, Object obj) {
       // 1. add the blob in the values map
       // 2. if the blob is image, figure out the size
-      // 3. if the size is smaller, show it in the grid, otherwise show just the message
+      // 3. if the size is smaller, show it in the grid, otherwise just show the message
       blobValues.put(row * BLOB_VALUES_ROW_MAGIC + column, obj)
 
       if (isImage(obj)) {
@@ -98,23 +102,23 @@ class ResultSetTableModel extends AbstractTableModel {
       obj
    }
 
-   def public static boolean isImage(byte[] data) {
+   static boolean isImage(byte[] data) {
       ImageIO.read(new ByteArrayInputStream(data)) != null
    }
 
-   def public boolean customRowHeightExists() {
+   boolean customRowHeightExists() {
       !maxRowHeights.isEmpty()
    }
 
-   def public Integer getMaxRowHeight(int row) {
+   Integer getMaxRowHeight(int row) {
       maxRowHeights.get(row)
    }
 
-   def boolean isCellEditable(int rowIndex, int columnIndex) {
+   boolean isCellEditable(int rowIndex, int columnIndex) {
       false
    }
 
-   def String getColumnName(int column) {
+   String getColumnName(int column) {
       colNames[column]
    }
 
